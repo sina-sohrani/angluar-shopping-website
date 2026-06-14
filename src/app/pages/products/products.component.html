@@ -1,0 +1,56 @@
+<section class="bg-gradient-to-b from-orange-50 to-white py-12">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">All Products</h1>
+    <p class="mt-2 text-gray-500">Browse our full collection of quality items</p>
+  </div>
+</section>
+
+<section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+  <!-- Category Filters -->
+  <div class="flex flex-wrap gap-2">
+    @for (category of categories; track category) {
+      <button
+        type="button"
+        (click)="selectCategory(category)"
+        class="rounded-full px-5 py-2 text-sm font-medium transition"
+        [class.bg-orange-500]="selectedCategory() === category"
+        [class.text-white]="selectedCategory() === category"
+        [class.shadow-md]="selectedCategory() === category"
+        [class.shadow-orange-200]="selectedCategory() === category"
+        [class.bg-white]="selectedCategory() !== category"
+        [class.text-gray-600]="selectedCategory() !== category"
+        [class.border]="selectedCategory() !== category"
+        [class.border-gray-200]="selectedCategory() !== category"
+        [class.hover:border-orange-300]="selectedCategory() !== category"
+        [class.hover:text-orange-600]="selectedCategory() !== category"
+      >
+        {{ category }}
+      </button>
+    }
+  </div>
+
+  <p class="mt-6 text-sm text-gray-500">
+    Showing {{ filteredProducts().length }} product{{ filteredProducts().length !== 1 ? 's' : '' }}
+  </p>
+
+  <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    @for (product of filteredProducts(); track product.id) {
+      <app-product-card [product]="product" (added)="showToast()" />
+    } @empty {
+      <div class="col-span-full py-16 text-center">
+        <p class="text-lg text-gray-500">No products found in this category.</p>
+      </div>
+    }
+  </div>
+</section>
+
+@if (toastVisible()) {
+  <div
+    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl bg-gray-900 px-5 py-3 text-white shadow-2xl animate-slide-up"
+  >
+    <svg class="h-5 w-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    Added to cart!
+  </div>
+}
