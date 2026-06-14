@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Product } from '../../models/product.model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { CartService } from '../../services/cart.service';
 import { ProductService } from '../../services/product.service';
 
@@ -14,14 +15,19 @@ export class ProductDetailComponent {
   private readonly productService = inject(ProductService);
   private readonly cartService = inject(CartService);
 
-  readonly product = signal<Product | undefined>(undefined);
+  private readonly productId = toSignal(
+    this.route.paramMap.pipe(map((params) => Number(params.get('id')))),
+    { initialValue: 0 },
+  );
+
+  readonly product = computed(() => {
+    const id = this.productId();
+    return this.productService.allProducts().find((p) => p.id === id);
+  });
+  readonly loading = this.productService.loading;
+  readonly error = this.productService.error;
   readonly quantity = signal(1);
   readonly added = signal(false);
-
-  constructor() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.product.set(this.productService.getProductById(id));
-  }
 
   incrementQuantity(): void {
     this.quantity.update((q) => q + 1);

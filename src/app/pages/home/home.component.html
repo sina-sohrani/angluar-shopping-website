@@ -125,8 +125,16 @@
     </div>
 
     <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      @for (product of featuredProducts; track product.id) {
-        <app-product-card [product]="product" (added)="showToast()" />
+      @if (loading()) {
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="h-80 animate-pulse rounded-2xl bg-gray-200"></div>
+        }
+      } @else if (error()) {
+        <p class="col-span-full text-center text-red-500">{{ error() }}</p>
+      } @else {
+        @for (product of featuredProducts(); track product.id) {
+          <app-product-card [product]="product" (added)="showToast()" />
+        }
       }
     </div>
 

@@ -8,7 +8,7 @@
 <section class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
   <!-- Category Filters -->
   <div class="flex flex-wrap gap-2">
-    @for (category of categories; track category) {
+    @for (category of categories(); track category) {
       <button
         type="button"
         (click)="selectCategory(category)"
@@ -30,16 +30,30 @@
   </div>
 
   <p class="mt-6 text-sm text-gray-500">
-    Showing {{ filteredProducts().length }} product{{ filteredProducts().length !== 1 ? 's' : '' }}
+    @if (loading()) {
+      Loading products...
+    } @else {
+      Showing {{ filteredProducts().length }} product{{ filteredProducts().length !== 1 ? 's' : '' }}
+    }
   </p>
 
+  @if (error()) {
+    <p class="mt-4 text-center text-red-500">{{ error() }}</p>
+  }
+
   <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-    @for (product of filteredProducts(); track product.id) {
-      <app-product-card [product]="product" (added)="showToast()" />
-    } @empty {
-      <div class="col-span-full py-16 text-center">
-        <p class="text-lg text-gray-500">No products found in this category.</p>
-      </div>
+    @if (loading()) {
+      @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+        <div class="h-80 animate-pulse rounded-2xl bg-gray-200"></div>
+      }
+    } @else {
+      @for (product of filteredProducts(); track product.id) {
+        <app-product-card [product]="product" (added)="showToast()" />
+      } @empty {
+        <div class="col-span-full py-16 text-center">
+          <p class="text-lg text-gray-500">No products found in this category.</p>
+        </div>
+      }
     }
   </div>
 </section>

@@ -13,8 +13,12 @@ export class ProductsComponent {
 
   readonly selectedCategory = signal<ProductCategory | 'All'>('All');
   readonly toastVisible = signal(false);
+  readonly loading = this.productService.loading;
+  readonly error = this.productService.error;
 
-  readonly categories = ['All', ...this.productService.getCategories()] as const;
+  readonly categories = computed(
+    () => ['All', ...this.productService.getCategories()] as const,
+  );
 
   readonly filteredProducts = computed(() =>
     this.productService.getProductsByCategory(this.selectedCategory()),

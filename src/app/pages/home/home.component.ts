@@ -11,7 +11,9 @@ import { ProductService } from '../../services/product.service';
 export class HomeComponent {
   private readonly productService = inject(ProductService);
 
-  readonly featuredProducts = this.productService.getFeaturedProducts(4);
+  readonly featuredProducts = this.productService.featuredProducts;
+  readonly loading = this.productService.loading;
+  readonly error = this.productService.error;
   readonly toastVisible = signal(false);
 
   readonly categories = [

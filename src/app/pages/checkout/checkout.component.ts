@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-checkout',
@@ -11,6 +12,7 @@ import { CartService } from '../../services/cart.service';
 export class CheckoutComponent {
   private readonly fb = inject(FormBuilder);
   private readonly cartService = inject(CartService);
+  private readonly orderService = inject(OrderService);
   private readonly router = inject(Router);
 
   readonly cartItems = this.cartService.cartItems;
@@ -18,6 +20,8 @@ export class CheckoutComponent {
   readonly shipping = this.cartService.shipping;
   readonly total = this.cartService.total;
   readonly orderPlaced = signal(false);
+  readonly submitting = signal(false);
+  readonly submitError = signal<string | null>(null);
 
   readonly checkoutForm = this.fb.group({
     firstName: ['', Validators.required],
@@ -36,8 +40,35 @@ export class CheckoutComponent {
       this.checkoutForm.markAllAsTouched();
       return;
     }
-    this.orderPlaced.set(true);
-    this.cartService.clearCart();
+
+    const form = this.checkoutForm.getRawValue();
+    this.submitting.set(true);
+    this.submitError.set(null);
+
+    this.orderService
+      .createOrder({
+        firstName: form.firstName!,
+        lastName: form.lastName!,
+        email: form.email!,
+        address: form.address!,
+        city: form.city!,
+        zipCode: form.zipCode!,
+        items: this.cartItems().map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        })),
+      })
+      .subscribe({
+        next: () => {
+          this.orderPlaced.set(true);
+          this.cartService.clearCart();
+          this.submitting.set(false);
+        },
+        error: () => {
+          this.submitError.set('Failed to place order. Please try again.');
+          this.submitting.set(false);
+        },
+      });
   }
 
   goHome(): void {
